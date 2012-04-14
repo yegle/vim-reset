@@ -28,7 +28,7 @@ Vim hardcoded `~/.vim` directory and `~/.vimrc` file in their source code which 
 ## how to use it?
 
 1. `git clone https://github.com/yegle/vim-reset`
-2. `export VIMCONFIG\_DIR="~/myvimconfigdir"`
+2. `export VIMCONFIG_DIR="~/myvimconfigdir"`
 3. `source vim-reset/activate`
 
 You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIMCONFIG_DIR` now.
