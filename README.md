@@ -33,4 +33,6 @@ Vim hardcoded `~/.vim` directory and `~/.vimrc` file in their source code which 
 
 You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIMCONFIG_DIR` now.
 
+You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.
+
 NOTE: `vim-reset` will do a _hard_ reset. That means the vim variable `runtimepath` will contain only `$VIMCONFIG_DIR`. This behavior may vary in the future.
