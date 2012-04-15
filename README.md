@@ -1,6 +1,8 @@
 # vim-reset
 
-A reset script so you can customize your very own VIM configurations
+A reset script so you can customize your very own VIM configurations.
+
+`vim-reset` is in [Public Domain]( http://en.wikipedia.org/wiki/Public_Domain ), feel free to re-use it and distribute it.
 
 *WARNING*:
 `vim-reset` doesn't come with any default `.vimrc` file / syntax file / plugins etc. You can refer to [yegle-vimrc]( https://github.com/yegle/yegle-vimrc ) as a start point.
