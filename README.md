@@ -2,7 +2,8 @@
 
 A reset script so you can customize your very own VIM configurations
 
-*WARNING*: `vim-reset` doesn't come with any default `.vimrc` file / syntax file / plugins.
+*WARNING*:
+`vim-reset` doesn't come with any default `.vimrc` file / syntax file / plugins etc. You can refer to [yegle-vimrc]( https://github.com/yegle/yegle-vimrc ) as a start point.
 
 ## what's reset?
 
