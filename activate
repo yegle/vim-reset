@@ -24,8 +24,7 @@ $VIM -c "redir! > $TEMP" -c 'set runtimepath' -c 'q'
 
 OLD_RUNTIMEPATH=$( tail -n1 $TEMP | awk -F= '{print $2}' | cut -d, -f2- )
 
-#RUNTIMEPATH="$VIMCONFIG_DIR,$OLD_RUNTIMEPATH"
-RUNTIMEPATH="$VIMCONFIG_DIR"
+RUNTIMEPATH="$VIMCONFIG_DIR,$OLD_RUNTIMEPATH"
 VIMRC="${VIMCONFIG_DIR}/.vimrc"
 
 alias vim="$VIM --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC}"
