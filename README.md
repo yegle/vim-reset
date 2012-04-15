@@ -36,3 +36,5 @@ You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIMCO
 You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.
 
 NOTE: `vim-reset` will do a _soft_ reset. That means the vim variable `runtimepath` will contain `$VIMCONFIG_DIR` along with your old `runtimepath`.
+
+NOTE AGAIN: `vim-reset` uses `$VIMCONFIG_DIR/_vimrc` as your main VIM configuration file by default, not `$VIMCONFIG_DIR/.vimrc`.
