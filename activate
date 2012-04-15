@@ -1,5 +1,35 @@
 #!/usr/bin/env bash
 
+# add $1 as the first directory of PATH environment variable
+function add_to_path {
+    local mypath=$1
+    local -a path_array
+    while read d
+    do
+        if [[ "$VIMCONFIG_DIR" != "${d}" ]]
+        then
+            path_array=( $( echo ${path_array[*]} ) $d )
+        fi
+    done<<<$( echo $PATH |tr ':' ' ' )
+    new_path="$( IFS=":"; echo "${path_array[*]}" )"
+    export PATH="${mypath}:${new_path}"
+}
+
+# delete $1 from PATH environment variable 
+function del_from_path {
+    local mypath=$1
+    local -a path_array
+    while read d
+    do
+        if [[ "$VIMCONFIG_DIR" != "${d}" ]]
+        then
+            path_array=( $( echo ${path_array[*]} ) $d )
+        fi
+    done<<<$( echo $PATH |tr ':' ' ' )
+    new_path="$( IFS=":"; echo "${path_array[*]}" )"
+    export PATH=$new_path
+}
+
 if [[ "$VIMCONFIG_DIR" == "" ]]
 then
     # this is a common one-liner copied from
@@ -17,6 +47,8 @@ then
     mkdir -p "${VIMCONFIG_DIR}"
 fi
 
+del_from_path "${VIMCONFIG_DIR}/bin"
+
 TEMP=$( mktemp )
 VIM=$( which vim )
 
@@ -27,8 +59,24 @@ OLD_RUNTIMEPATH=$( tail -n1 $TEMP | awk -F= '{print $2}' | cut -d, -f2- )
 RUNTIMEPATH="$VIMCONFIG_DIR,$OLD_RUNTIMEPATH"
 VIMRC="${VIMCONFIG_DIR}/_vimrc"
 
-alias vim="$VIM --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC}"
-alias vi=vim
+if [[ ! -d "${VIMCONFIG_DIR}/bin" ]]
+then
+    mkdir ${VIMCONFIG_DIR}/bin
+fi
+
+cat > ${VIMCONFIG_DIR}/bin/vim <<OUTPUT
+#!/usr/bin/env bash
+
+$VIM --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC} \$@
+OUTPUT
+
+chmod +x ${VIMCONFIG_DIR}/bin/vim
+
+add_to_path "${VIMCONFIG_DIR}/bin"
+
+#export EDITOR="$VIM --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC}"
+#alias vim="$VIM --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC}"
+#alias vi=vim
 
 echo "========================"
 echo "VIMRC=${VIMRC}"
