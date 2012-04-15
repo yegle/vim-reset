@@ -28,6 +28,14 @@ After reading the source code you may think that this is really a dirty hack. Ye
 
 Vim hardcoded `~/.vim` directory and `~/.vimrc` file in their source code which makes it hard to customize where you can load your VIM configurations.
 
+## do I need this?
+
+You may find `vim-reset` similar to [pathogen.vim]( https://github.com/tpope/vim-pathogen ). But they are different. `pathogen.vim` manages files _inside_ `runtimepath`, while `vim-reset` take care of your `runtimepath` directory.
+
+`vim-reset` is very useful if you need to maintain many different sets of vim configuration files, or you are using a shared account on a server with someone else.
+
+`vim-reset` makes it possible to share a complete `vimrc` directory to someone else with all plugins / syntax, not just `~/.vimrc`.
+
 ## how to use it?
 
 1. `git clone https://github.com/yegle/vim-reset`
