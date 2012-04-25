@@ -30,6 +30,13 @@ function del_from_path {
     export PATH=$new_path
 }
 
+# check if vim-reset is already working now
+function check_vim_reset {
+    add_to_path "${VIMCONFIG_DIR}/bin"
+    grep -IF 'GENERATED_BY_VIM_RESET' $( which vim ) &>/dev/null
+    return $?
+}
+
 if [[ "$VIMCONFIG_DIR" == "" ]]
 then
     # this is a common one-liner copied from
@@ -39,6 +46,12 @@ then
     echo "You didn't specify VIMCONFIG_DIR environment, default using ${VIMCONFIG_DIR}" >&2
 else
     echo "Using ${VIMCONFIG_DIR}" >&2
+fi
+
+check_vim_reset
+if [[ $? -eq 0 ]]
+then
+    return
 fi
 
 if [[ ! -d "${VIMCONFIG_DIR}" ]]
@@ -68,6 +81,8 @@ if [[ ! -f "${VIMCONFIG_DIR}/bin/vim" ]]
 then
     cat > ${VIMCONFIG_DIR}/bin/vim <<OUTPUT
 #!/usr/bin/env bash
+# GENERATED_BY_VIM_RESET
+# don't delete the line above
 
 $VIM --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC} \$@
 OUTPUT
