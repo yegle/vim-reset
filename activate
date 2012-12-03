@@ -25,7 +25,7 @@ path_push() {
 get_vim_rtp() {
     ${VIM} 2>/dev/null \
         -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
-        tail -n1 | awk -F= '{print $2}' | cut -d, -f2-
+        tail -n1 | cut -d= -f2- | cut -d, -f2-
 }
 
 # check if vim-reset is already working now
