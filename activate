@@ -22,6 +22,12 @@ path_push() {
     export PATH=${path}:$PATH
 }
 
+get_vim_rtp() {
+    ${VIM} 2>/dev/null \
+        -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
+        tail -n1 | cut -d= -f2- | cut -d, -f2-
+}
+
 # check if vim-reset is already working now
 check_vim_reset() {
     path_push "${VIMCONFIG_DIR}/bin"
@@ -50,14 +56,9 @@ then
     mkdir -p "${VIMCONFIG_DIR}"
 fi
 
-TEMP=$( mktemp )
 VIM=$( which vim )
 
-${VIM} -c "redir! > $TEMP" -c 'set runtimepath' -c 'q'
-
-OLD_RUNTIMEPATH=$( tail -n1 $TEMP | awk -F= '{print $2}' | cut -d, -f2- )
-
-RUNTIMEPATH=${VIMCONFIG_DIR},${OLD_RUNTIMEPATH}
+RUNTIMEPATH=${VIMCONFIG_DIR},$(get_vim_rtp)
 VIMRC=${VIMCONFIG_DIR}/_vimrc
 
 if [[ ! -d ${VIMCONFIG_DIR}/bin ]]
