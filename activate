@@ -6,7 +6,7 @@ add_to_path() {
     local -a path_array
     while read d
     do
-        if [[ ${path} != ${d} ]]
+        if [[ ${path%/} != ${d%/} ]]
         then
             path_array=( $( echo ${path_array[*]} ) $d )
         fi
@@ -20,7 +20,7 @@ del_from_path() {
     local -a path_array
     while read d
     do
-        if [[ ${path} != ${d} ]]
+        if [[ ${path%/} != ${d%/} ]]
         then
             path_array=( $( echo ${path_array[*]} ) $d )
         fi
