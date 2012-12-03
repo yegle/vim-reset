@@ -1,21 +1,7 @@
 #!/usr/bin/env bash
 
-# add $1 as the first directory of PATH environment variable
-add_to_path() {
-    local path=$1
-    local -a path_array
-    while read d
-    do
-        if [[ ${path%/} != ${d%/} ]]
-        then
-            path_array=( $( echo ${path_array[*]} ) $d )
-        fi
-    done<<<$( echo $PATH |tr ':' ' ' )
-    export PATH=${path}:$( IFS=":"; echo "${path_array[*]}" )
-}
-
-# delete $1 from PATH environment variable
-del_from_path() {
+# pop $1 from PATH environment variable
+path_pop() {
     local path=$1
     local -a path_array
     while read d
@@ -28,9 +14,23 @@ del_from_path() {
     export PATH=$( IFS=":"; echo "${path_array[*]}" )
 }
 
+# push $1 as the first directory of PATH environment variable
+path_push() {
+    local path=$1
+    local -a path_array
+    while read d
+    do
+        if [[ ${path%/} != ${d%/} ]]
+        then
+            path_array=( $( echo ${path_array[*]} ) $d )
+        fi
+    done<<<$( echo $PATH |tr ':' ' ' )
+    export PATH=${path}:$( IFS=":"; echo "${path_array[*]}" )
+}
+
 # check if vim-reset is already working now
 check_vim_reset() {
-    add_to_path "${VIMCONFIG_DIR}/bin"
+    path_push "${VIMCONFIG_DIR}/bin"
     grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
 }
 
@@ -83,7 +83,7 @@ OUTPUT
     chmod +x "${VIMCONFIG_DIR}/bin/vim"
 fi
 
-add_to_path "${VIMCONFIG_DIR}/bin"
+path_push "${VIMCONFIG_DIR}/bin"
 
 echo "========================"
 echo "VIMRC=${VIMRC}"
