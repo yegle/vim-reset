@@ -2,7 +2,7 @@
 
 # add $1 as the first directory of PATH environment variable
 add_to_path() {
-    local mypath=$1
+    local path=$1
     local -a path_array
     while read d
     do
@@ -11,12 +11,12 @@ add_to_path() {
             path_array=( $( echo ${path_array[*]} ) $d )
         fi
     done<<<$( echo $PATH |tr ':' ' ' )
-    export PATH=${mypath}:$( IFS=":"; echo "${path_array[*]}" )
+    export PATH=${path}:$( IFS=":"; echo "${path_array[*]}" )
 }
 
 # delete $1 from PATH environment variable
 del_from_path() {
-    local mypath=$1
+    local path=$1
     local -a path_array
     while read d
     do
