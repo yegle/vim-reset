@@ -56,8 +56,6 @@ then
     mkdir -p "${VIMCONFIG_DIR}"
 fi
 
-del_from_path "${VIMCONFIG_DIR}/bin"
-
 TEMP=$( mktemp )
 VIM=$( which vim )
 
