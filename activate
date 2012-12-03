@@ -1,55 +1,51 @@
 #!/usr/bin/env bash
 
 # add $1 as the first directory of PATH environment variable
-function add_to_path {
+add_to_path() {
     local mypath=$1
     local -a path_array
     while read d
     do
-        if [[ "$VIMCONFIG_DIR" != "${d}" ]]
+        if [[ "${VIMCONFIG_DIR}" != "${d}" ]]
         then
             path_array=( $( echo ${path_array[*]} ) $d )
         fi
     done<<<$( echo $PATH |tr ':' ' ' )
-    new_path="$( IFS=":"; echo "${path_array[*]}" )"
-    export PATH="${mypath}:${new_path}"
+    export PATH="${mypath}:$( IFS=":"; echo "${path_array[*]}" )"
 }
 
-# delete $1 from PATH environment variable 
-function del_from_path {
+# delete $1 from PATH environment variable
+del_from_path() {
     local mypath=$1
     local -a path_array
     while read d
     do
-        if [[ "$VIMCONFIG_DIR" != "${d}" ]]
+        if [[ "${VIMCONFIG_DIR}" != "${d}" ]]
         then
             path_array=( $( echo ${path_array[*]} ) $d )
         fi
     done<<<$( echo $PATH |tr ':' ' ' )
-    new_path="$( IFS=":"; echo "${path_array[*]}" )"
-    export PATH=$new_path
+    export PATH="$( IFS=":"; echo "${path_array[*]}" )"
 }
 
 # check if vim-reset is already working now
-function check_vim_reset {
+check_vim_reset() {
     add_to_path "${VIMCONFIG_DIR}/bin"
     grep -IF 'GENERATED_BY_VIM_RESET' $( which vim ) &>/dev/null
-    return $?
 }
 
-if [[ "$VIMCONFIG_DIR" == "" ]]
+if [[ -z "${VIMCONFIG_DIR}" ]]
 then
     # this is a common one-liner copied from
     # http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" 
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     VIMCONFIG_DIR="${SCRIPT_DIR}/vimconfig"
     echo "You didn't specify VIMCONFIG_DIR environment, default using ${VIMCONFIG_DIR}" >&2
 else
     echo "Using ${VIMCONFIG_DIR}" >&2
 fi
 
-check_vim_reset
-if [[ $? -eq 0 ]]
+if check_vim_reset
 then
     return
 fi
@@ -65,11 +61,11 @@ del_from_path "${VIMCONFIG_DIR}/bin"
 TEMP=$( mktemp )
 VIM=$( which vim )
 
-$VIM -c "redir! > $TEMP" -c 'set runtimepath' -c 'q'
+${VIM} -c "redir! > $TEMP" -c 'set runtimepath' -c 'q'
 
 OLD_RUNTIMEPATH=$( tail -n1 $TEMP | awk -F= '{print $2}' | cut -d, -f2- )
 
-RUNTIMEPATH="$VIMCONFIG_DIR,$OLD_RUNTIMEPATH"
+RUNTIMEPATH="${VIMCONFIG_DIR},${OLD_RUNTIMEPATH}"
 VIMRC="${VIMCONFIG_DIR}/_vimrc"
 
 if [[ ! -d "${VIMCONFIG_DIR}/bin" ]]
@@ -84,7 +80,7 @@ then
 # GENERATED_BY_VIM_RESET
 # don't delete the line above
 
-$VIM --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC} \$@
+${VIM} --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC} \$@
 OUTPUT
     chmod +x ${VIMCONFIG_DIR}/bin/vim
 fi
@@ -95,9 +91,10 @@ echo "========================"
 echo "VIMRC=${VIMRC}"
 echo "VIMRUNTIME=${RUNTIMEPATH}"
 echo "========================"
-echo ""
 
 if [[ ! -f "${VIMRC}" ]]
 then
+    echo
     echo "WARNING: ${VIMRC} doesn't exist, please remember to create it or copy your current ~/.vimrc file" >&2
+    echo
 fi
