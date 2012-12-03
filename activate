@@ -17,15 +17,8 @@ path_pop() {
 # push $1 as the first directory of PATH environment variable
 path_push() {
     local path=$1
-    local -a path_array
-    while read d
-    do
-        if [[ ${path%/} != ${d%/} ]]
-        then
-            path_array=( $( echo ${path_array[*]} ) $d )
-        fi
-    done<<<$( echo $PATH |tr ':' ' ' )
-    export PATH=${path}:$( IFS=":"; echo "${path_array[*]}" )
+    path_pop "${path}"
+    export PATH=${path}:$PATH
 }
 
 # check if vim-reset is already working now
