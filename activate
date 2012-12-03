@@ -3,14 +3,15 @@
 # pop $1 from PATH environment variable
 path_pop() {
     local path=$1
-    local -a path_array
-    while read d
+    local path_array
+    local path_index
+    IFS=':' read -ra path_array <<< "$PATH"
+    for path_index in ${!path_array[*]}
     do
-        if [[ ${path%/} != ${d%/} ]]
-        then
-            path_array=( $( echo ${path_array[*]} ) $d )
-        fi
-    done<<<$( echo $PATH |tr ':' ' ' )
+        [[ ${path%/} == ${path_array[${path_index}]%/} ]] && {
+            unset path_array[${path_index}]
+        }
+    done
     export PATH=$( IFS=":"; echo "${path_array[*]}" )
 }
 
