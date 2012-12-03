@@ -1,6 +1,6 @@
 # vim-reset
 
-A reset script so you can customize your very own VIM configurations.
+A bash script so you can customize your very own VIM configurations.
 
 `vim-reset` is in [Public Domain]( http://en.wikipedia.org/wiki/Public_Domain ), feel free to re-use it and distribute it.
 
@@ -17,7 +17,7 @@ As a system administrator, I have to deal with different distros, each comes wit
 
 ## anything else?
 
-Besides the `reset` process, `vim-reset` also provides a way to maintain your very own VIM configuration files in a different directory other than `~/.vim` directory. 
+Besides the `reset` process, `vim-reset` also provides a way to maintain your very own VIM configuration files in a different directory other than `~/.vim` directory.
 You can put all syntax file, plugins in a dedicated directory without any modification to `~/.vim` directory.
 
 If you are familiar to `python`, `vim-reset` is like the `virtualenv` for VIM.
