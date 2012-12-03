@@ -31,7 +31,7 @@ del_from_path() {
 # check if vim-reset is already working now
 check_vim_reset() {
     add_to_path "${VIMCONFIG_DIR}/bin"
-    grep -IF 'GENERATED_BY_VIM_RESET' $( which vim ) &>/dev/null
+    grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
 }
 
 if [[ -z ${VIMCONFIG_DIR} ]]
@@ -70,19 +70,19 @@ VIMRC=${VIMCONFIG_DIR}/_vimrc
 
 if [[ ! -d ${VIMCONFIG_DIR}/bin ]]
 then
-    mkdir ${VIMCONFIG_DIR}/bin
+    mkdir "${VIMCONFIG_DIR}/bin"
 fi
 
 if [[ ! -f ${VIMCONFIG_DIR}/bin/vim ]]
 then
-    cat > ${VIMCONFIG_DIR}/bin/vim <<OUTPUT
+    cat > "${VIMCONFIG_DIR}/bin/vim" <<OUTPUT
 #!/usr/bin/env bash
 # GENERATED_BY_VIM_RESET
 # don't delete the line above
 
-${VIM} --cmd 'set runtimepath=${RUNTIMEPATH}' -u ${VIMRC} \$@
+${VIM} --cmd 'set runtimepath=${RUNTIMEPATH}' -u '${VIMRC}' \$@
 OUTPUT
-    chmod +x ${VIMCONFIG_DIR}/bin/vim
+    chmod +x "${VIMCONFIG_DIR}/bin/vim"
 fi
 
 add_to_path "${VIMCONFIG_DIR}/bin"
