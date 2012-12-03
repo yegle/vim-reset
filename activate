@@ -1,36 +1,30 @@
 #!/usr/bin/env bash
 
-# add $1 as the first directory of PATH environment variable
-add_to_path() {
-    local mypath=$1
-    local -a path_array
-    while read d
+# pop $1 from PATH environment variable
+path_pop() {
+    local path=$1
+    local path_array
+    local path_index
+    IFS=':' read -ra path_array <<< "$PATH"
+    for path_index in ${!path_array[*]}
     do
-        if [[ ${VIMCONFIG_DIR} != ${d} ]]
-        then
-            path_array=( $( echo ${path_array[*]} ) $d )
-        fi
-    done<<<$( echo $PATH |tr ':' ' ' )
-    export PATH=${mypath}:$( IFS=":"; echo "${path_array[*]}" )
+        [[ ${path%/} == ${path_array[${path_index}]%/} ]] && {
+            unset path_array[${path_index}]
+        }
+    done
+    export PATH=$( IFS=":"; echo "${path_array[*]}" )
 }
 
-# delete $1 from PATH environment variable
-del_from_path() {
-    local mypath=$1
-    local -a path_array
-    while read d
-    do
-        if [[ ${VIMCONFIG_DIR} != ${d} ]]
-        then
-            path_array=( $( echo ${path_array[*]} ) $d )
-        fi
-    done<<<$( echo $PATH |tr ':' ' ' )
-    export PATH=$( IFS=":"; echo "${path_array[*]}" )
+# push $1 as the first directory of PATH environment variable
+path_push() {
+    local path=$1
+    path_pop "${path}"
+    export PATH=${path}:$PATH
 }
 
 # check if vim-reset is already working now
 check_vim_reset() {
-    add_to_path "${VIMCONFIG_DIR}/bin"
+    path_push "${VIMCONFIG_DIR}/bin"
     grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
 }
 
@@ -55,8 +49,6 @@ then
     echo "Creating ${VIMCONFIG_DIR}" >&2
     mkdir -p "${VIMCONFIG_DIR}"
 fi
-
-del_from_path "${VIMCONFIG_DIR}/bin"
 
 TEMP=$( mktemp )
 VIM=$( which vim )
@@ -85,7 +77,7 @@ OUTPUT
     chmod +x "${VIMCONFIG_DIR}/bin/vim"
 fi
 
-add_to_path "${VIMCONFIG_DIR}/bin"
+path_push "${VIMCONFIG_DIR}/bin"
 
 echo "========================"
 echo "VIMRC=${VIMRC}"
