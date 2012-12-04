@@ -36,11 +36,9 @@ check_vim_reset() {
 
 if [[ -z ${VIM_RESET_CONFDIR} ]]
 then
-    # this is a common one-liner copied from
-    # http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-    SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-    VIM_RESET_CONFDIR=${SCRIPT_DIR}/vimconfig
-    echo "You didn't specify VIM_RESET_CONFDIR environment, default using ${VIM_RESET_CONFDIR}" >&2
+    echo "Env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
+    echo "Aborting..."
+    return
 else
     echo "Using ${VIM_RESET_CONFDIR}" >&2
 fi
