@@ -56,12 +56,12 @@ fi
 
 VIM=$( which vim )
 
-RUNTIMEPATH=${VIM_RESET_CONFDIR},$(get_vim_rtp)
-
 if [[ -z ${VIM_RESET_VIMRC} ]]
 then
     VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
 fi
+
+VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR},$(get_vim_rtp)
 
 if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
@@ -75,7 +75,7 @@ then
 # GENERATED_BY_VIM_RESET
 # don't delete the line above
 
-${VIM} --cmd 'set runtimepath=${RUNTIMEPATH}' -u '${VIM_RESET_VIMRC}' \$@
+${VIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' \$@
 OUTPUT
     chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
 fi
@@ -84,7 +84,7 @@ path_push "${VIM_RESET_CONFDIR}/bin"
 
 echo "========================"
 echo "VIMRC=${VIM_RESET_VIMRC}"
-echo "VIMRUNTIME=${RUNTIMEPATH}"
+echo "VIMRTP=${VIM_RESET_VIMRTP}"
 echo "========================"
 
 if [[ ! -f ${VIM_RESET_VIMRC} ]]
