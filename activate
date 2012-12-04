@@ -61,7 +61,27 @@ then
     VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
 fi
 
-VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR},$(get_vim_rtp),${VIM_RESET_CONFDIR}/after
+if [[ -n ${VIM_RESET_VIMRTP} ]]
+then
+    VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR},${VIM_RESET_VIMRTP}
+else
+    VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR}
+fi
+
+declare -a rtps
+IFS=',' read -ra rtps < <(echo ${VIM_RESET_VIMRTP})
+
+VIM_RESET_VIMRTP=$(get_vim_rtp)
+for rtp_i in ${!rtps[*]}
+do
+    # Preserve the exact order of the rtps
+    rtp=${rtps[$((${#rtps[@]} - ${rtp_i} - 1))]}
+
+    # Skip non-directory path
+    [[ -d ${rtp} ]] || continue
+
+    VIM_RESET_VIMRTP=${rtp},${VIM_RESET_VIMRTP},${rtp}/after
+done
 
 if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
@@ -95,3 +115,4 @@ then
 fi
 
 unset VIM_RESET_VIMRC
+unset VIM_RESET_VIMRTP
