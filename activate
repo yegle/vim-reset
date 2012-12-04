@@ -30,19 +30,17 @@ get_vim_rtp() {
 
 # check if vim-reset is already working now
 check_vim_reset() {
-    path_push "${VIMCONFIG_DIR}/bin"
+    path_push "${VIM_RESET_CONFDIR}/bin"
     grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
 }
 
-if [[ -z ${VIMCONFIG_DIR} ]]
+if [[ -z ${VIM_RESET_CONFDIR} ]]
 then
-    # this is a common one-liner copied from
-    # http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
-    SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-    VIMCONFIG_DIR=${SCRIPT_DIR}/vimconfig
-    echo "You didn't specify VIMCONFIG_DIR environment, default using ${VIMCONFIG_DIR}" >&2
+    echo "Env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
+    echo "Aborting..."
+    return
 else
-    echo "Using ${VIMCONFIG_DIR}" >&2
+    echo "Using ${VIM_RESET_CONFDIR}" >&2
 fi
 
 if check_vim_reset
@@ -50,44 +48,85 @@ then
     return
 fi
 
-if [[ ! -d ${VIMCONFIG_DIR} ]]
+if [[ ! -d ${VIM_RESET_CONFDIR} ]]
 then
-    echo "Creating ${VIMCONFIG_DIR}" >&2
-    mkdir -p "${VIMCONFIG_DIR}"
+    echo "Creating ${VIM_RESET_CONFDIR}" >&2
+    mkdir -p "${VIM_RESET_CONFDIR}"
 fi
 
 VIM=$( which vim )
 
-RUNTIMEPATH=${VIMCONFIG_DIR},$(get_vim_rtp)
-VIMRC=${VIMCONFIG_DIR}/_vimrc
-
-if [[ ! -d ${VIMCONFIG_DIR}/bin ]]
+if [[ -z ${VIM_RESET_VIMRC} ]]
 then
-    mkdir "${VIMCONFIG_DIR}/bin"
+    VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
 fi
 
-if [[ ! -f ${VIMCONFIG_DIR}/bin/vim ]]
+if [[ -n ${VIM_RESET_VIMRTP} ]]
 then
-    cat > "${VIMCONFIG_DIR}/bin/vim" <<OUTPUT
+    VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR},${VIM_RESET_VIMRTP}
+else
+    VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR}
+fi
+
+declare -a rtps
+IFS=',' read -ra rtps < <(echo ${VIM_RESET_VIMRTP})
+
+declare -a _rtps
+IFS=',' read -ra _rtps < <(get_vim_rtp)
+
+for rtp_i in ${!rtps[*]}
+do
+    # Preserve the exact order of the rtps
+    rtp=${rtps[$((${#rtps[@]} - ${rtp_i} - 1))]}
+
+    # Skip non-directory path
+    [[ -d ${rtp} ]] || continue
+
+    # Remove duplicate paths
+    for _rtp_i in ${!_rtps[*]}
+    do
+        _rtp=${_rtps[${_rtp_i}]}
+        {
+            [[ ${rtp%/} == ${_rtp%/} ]] || \
+                [[ ${rtp%/}/after == ${_rtp%/}/after ]]
+        } && {
+            unset _rtps[${_rtp_i}]
+        }
+    done
+    _rtps=( "${rtp}" "${_rtps[@]}" "${rtp}"/after )
+done
+VIM_RESET_VIMRTP=$( IFS=","; echo "${_rtps[*]}" )
+
+if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
+then
+    mkdir "${VIM_RESET_CONFDIR}/bin"
+fi
+
+if [[ ! -f ${VIM_RESET_CONFDIR}/bin/vim ]]
+then
+    cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
 #!/usr/bin/env bash
 # GENERATED_BY_VIM_RESET
 # don't delete the line above
 
-${VIM} --cmd 'set runtimepath=${RUNTIMEPATH}' -u '${VIMRC}' \$@
+${VIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' \$@
 OUTPUT
-    chmod +x "${VIMCONFIG_DIR}/bin/vim"
+    chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
 fi
 
-path_push "${VIMCONFIG_DIR}/bin"
+path_push "${VIM_RESET_CONFDIR}/bin"
 
 echo "========================"
-echo "VIMRC=${VIMRC}"
-echo "VIMRUNTIME=${RUNTIMEPATH}"
+echo "VIMRC=${VIM_RESET_VIMRC}"
+echo "VIMRTP=${VIM_RESET_VIMRTP}"
 echo "========================"
 
-if [[ ! -f ${VIMRC} ]]
+if [[ ! -f ${VIM_RESET_VIMRC} ]]
 then
     echo
-    echo "WARNING: ${VIMRC} doesn't exist, please remember to create it or copy your current ~/.vimrc file" >&2
+    echo "WARNING: ${VIM_RESET_VIMRC} doesn't exist, please remember to create it or copy your current ~/.vimrc file" >&2
     echo
 fi
+
+unset VIM_RESET_VIMRC
+unset VIM_RESET_VIMRTP
