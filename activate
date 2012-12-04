@@ -71,7 +71,9 @@ fi
 declare -a rtps
 IFS=',' read -ra rtps < <(echo ${VIM_RESET_VIMRTP})
 
-VIM_RESET_VIMRTP=$(get_vim_rtp)
+declare -a _rtps
+IFS=',' read -ra _rtps < <(get_vim_rtp)
+
 for rtp_i in ${!rtps[*]}
 do
     # Preserve the exact order of the rtps
@@ -80,8 +82,20 @@ do
     # Skip non-directory path
     [[ -d ${rtp} ]] || continue
 
-    VIM_RESET_VIMRTP=${rtp},${VIM_RESET_VIMRTP},${rtp}/after
+    # Remove duplicate paths
+    for _rtp_i in ${!_rtps[*]}
+    do
+        _rtp=${_rtps[${_rtp_i}]}
+        {
+            [[ ${rtp%/} == ${_rtp%/} ]] || \
+                [[ ${rtp%/}/after == ${_rtp%/}/after ]]
+        } && {
+            unset _rtps[${_rtp_i}]
+        }
+    done
+    _rtps=( "${rtp}" "${_rtps[@]}" "${rtp}"/after )
 done
+VIM_RESET_VIMRTP=$( IFS=","; echo "${_rtps[*]}" )
 
 if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
