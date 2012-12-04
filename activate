@@ -57,7 +57,11 @@ fi
 VIM=$( which vim )
 
 RUNTIMEPATH=${VIM_RESET_CONFDIR},$(get_vim_rtp)
-VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
+
+if [[ -z ${VIM_RESET_VIMRC} ]]
+then
+    VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
+fi
 
 if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
@@ -89,3 +93,5 @@ then
     echo "WARNING: ${VIM_RESET_VIMRC} doesn't exist, please remember to create it or copy your current ~/.vimrc file" >&2
     echo
 fi
+
+unset VIM_RESET_VIMRC

@@ -44,6 +44,8 @@ You may find `vim-reset` similar to [pathogen.vim]( https://github.com/tpope/vim
 
 You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIM_RESET_CONFDIR` now.
 
+You can use `$VIM_RESET_VIMRC` to tell `vim-reset` to use a specific VIM configuration file.
+
 You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.
 
 NOTE: `vim-reset` will do a _soft_ reset. That means the vim variable `runtimepath` will contain `$VIM_RESET_CONFDIR` along with your old `runtimepath`.
