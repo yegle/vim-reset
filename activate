@@ -61,7 +61,7 @@ then
     VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
 fi
 
-VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR},$(get_vim_rtp)
+VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR},$(get_vim_rtp),${VIM_RESET_CONFDIR}/after
 
 if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
