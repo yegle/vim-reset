@@ -30,19 +30,19 @@ get_vim_rtp() {
 
 # check if vim-reset is already working now
 check_vim_reset() {
-    path_push "${VIMCONFIG_DIR}/bin"
+    path_push "${VIM_RESET_CONFDIR}/bin"
     grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
 }
 
-if [[ -z ${VIMCONFIG_DIR} ]]
+if [[ -z ${VIM_RESET_CONFDIR} ]]
 then
     # this is a common one-liner copied from
     # http://stackoverflow.com/questions/59895/can-a-bash-script-tell-what-directory-its-stored-in
     SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-    VIMCONFIG_DIR=${SCRIPT_DIR}/vimconfig
-    echo "You didn't specify VIMCONFIG_DIR environment, default using ${VIMCONFIG_DIR}" >&2
+    VIM_RESET_CONFDIR=${SCRIPT_DIR}/vimconfig
+    echo "You didn't specify VIM_RESET_CONFDIR environment, default using ${VIM_RESET_CONFDIR}" >&2
 else
-    echo "Using ${VIMCONFIG_DIR}" >&2
+    echo "Using ${VIM_RESET_CONFDIR}" >&2
 fi
 
 if check_vim_reset
@@ -50,35 +50,35 @@ then
     return
 fi
 
-if [[ ! -d ${VIMCONFIG_DIR} ]]
+if [[ ! -d ${VIM_RESET_CONFDIR} ]]
 then
-    echo "Creating ${VIMCONFIG_DIR}" >&2
-    mkdir -p "${VIMCONFIG_DIR}"
+    echo "Creating ${VIM_RESET_CONFDIR}" >&2
+    mkdir -p "${VIM_RESET_CONFDIR}"
 fi
 
 VIM=$( which vim )
 
-RUNTIMEPATH=${VIMCONFIG_DIR},$(get_vim_rtp)
-VIMRC=${VIMCONFIG_DIR}/_vimrc
+RUNTIMEPATH=${VIM_RESET_CONFDIR},$(get_vim_rtp)
+VIMRC=${VIM_RESET_CONFDIR}/_vimrc
 
-if [[ ! -d ${VIMCONFIG_DIR}/bin ]]
+if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
-    mkdir "${VIMCONFIG_DIR}/bin"
+    mkdir "${VIM_RESET_CONFDIR}/bin"
 fi
 
-if [[ ! -f ${VIMCONFIG_DIR}/bin/vim ]]
+if [[ ! -f ${VIM_RESET_CONFDIR}/bin/vim ]]
 then
-    cat > "${VIMCONFIG_DIR}/bin/vim" <<OUTPUT
+    cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
 #!/usr/bin/env bash
 # GENERATED_BY_VIM_RESET
 # don't delete the line above
 
 ${VIM} --cmd 'set runtimepath=${RUNTIMEPATH}' -u '${VIMRC}' \$@
 OUTPUT
-    chmod +x "${VIMCONFIG_DIR}/bin/vim"
+    chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
 fi
 
-path_push "${VIMCONFIG_DIR}/bin"
+path_push "${VIM_RESET_CONFDIR}/bin"
 
 echo "========================"
 echo "VIMRC=${VIMRC}"

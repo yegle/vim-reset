@@ -39,13 +39,13 @@ You may find `vim-reset` similar to [pathogen.vim]( https://github.com/tpope/vim
 ## how to use it?
 
 1. `git clone https://github.com/yegle/vim-reset`
-2. `export VIMCONFIG_DIR="${HOME}/myvimconfigdir"`
+2. `export VIM_RESET_CONFDIR="${HOME}/myvimconfigdir"`
 3. `source vim-reset/activate`
 
-You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIMCONFIG_DIR` now.
+You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIM_RESET_CONFDIR` now.
 
 You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.
 
-NOTE: `vim-reset` will do a _soft_ reset. That means the vim variable `runtimepath` will contain `$VIMCONFIG_DIR` along with your old `runtimepath`.
+NOTE: `vim-reset` will do a _soft_ reset. That means the vim variable `runtimepath` will contain `$VIM_RESET_CONFDIR` along with your old `runtimepath`.
 
-NOTE AGAIN: `vim-reset` uses `$VIMCONFIG_DIR/_vimrc` as your main VIM configuration file by default, not `$VIMCONFIG_DIR/.vimrc`.
+NOTE AGAIN: `vim-reset` uses `$VIM_RESET_CONFDIR/_vimrc` as your main VIM configuration file by default, not `$VIM_RESET_CONFDIR/.vimrc`.
