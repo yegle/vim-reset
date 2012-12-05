@@ -25,7 +25,7 @@ path_push() {
 get_vim_rtp() {
     ${VIM} 2>/dev/null \
         -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
-        tail -n1 | cut -d= -f2- | cut -d, -f2-
+        tail -n1 | cut -d= -f2-
 }
 
 # check if vim-reset is already working now
@@ -68,6 +68,8 @@ else
     VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR}
 fi
 
+VIM_RESET_VIMRTP=${VIM_RESET_VIMRTP},"~/.vim"
+
 declare -a rtps
 IFS=',' read -ra rtps < <(echo ${VIM_RESET_VIMRTP})
 
@@ -93,6 +95,7 @@ do
             unset _rtps[${_rtp_i}]
         }
     done
+    [[ ${rtp} == "~/.vim" ]] && continue
     _rtps=( "${rtp}" "${_rtps[@]}" "${rtp}"/after )
 done
 VIM_RESET_VIMRTP=$( IFS=","; echo "${_rtps[*]}" )
