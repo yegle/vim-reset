@@ -30,9 +30,13 @@ get_vim_rtp() {
 
 # check if vim-reset is already working now
 check_vim_reset() {
-    path_push "${VIM_RESET_CONFDIR}/bin"
     grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
 }
+
+if check_vim_reset
+then
+    return
+fi
 
 if [[ -z ${VIM_RESET_CONFDIR} ]]
 then
@@ -41,11 +45,6 @@ then
     return
 else
     echo "Using ${VIM_RESET_CONFDIR}" >&2
-fi
-
-if check_vim_reset
-then
-    return
 fi
 
 if [[ ! -d ${VIM_RESET_CONFDIR} ]]
