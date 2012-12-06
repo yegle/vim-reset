@@ -57,6 +57,11 @@ if [[ ! -d ${VIM_RESET_CONFDIR} ]]
 then
     echo "Creating ${VIM_RESET_CONFDIR}" >&2
     mkdir -p "${VIM_RESET_CONFDIR}"
+    [[ $? -ne 0 ]] && {
+        echo "Fail to mkdir ${VIM_RESET_CONFDIR}"
+        echo "Aborting..."
+        return
+    }
 fi
 
 if [[ -z ${VIM_RESET_VIMRC} ]]
@@ -106,6 +111,11 @@ VIM_RESET_VIMRTP=$( IFS=","; echo "${_rtps[*]}" )
 if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
     mkdir "${VIM_RESET_CONFDIR}/bin"
+    [[ $? -ne 0 ]] && {
+        echo "Fail to mkdir ${VIM_RESET_CONFDIR}/bin"
+        echo "Aborting..."
+        return
+    }
 fi
 
 if [[ ! -f ${VIM_RESET_CONFDIR}/bin/vim ]]
