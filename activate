@@ -118,7 +118,7 @@ then
     }
 fi
 
-if [[ ! -f ${VIM_RESET_CONFDIR}/bin/vim ]]
+if [[ ! -e ${VIM_RESET_CONFDIR}/bin/vim ]]
 then
     cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
 #!/usr/bin/env bash
@@ -130,7 +130,14 @@ OUTPUT
     chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
 fi
 
-path_push "${VIM_RESET_CONFDIR}/bin"
+if [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ -x ${VIM_RESET_CONFDIR}/bin/vim ]]
+then
+    path_push "${VIM_RESET_CONFDIR}/bin"
+else
+    echo "Something odd has happend, please check your ${VIM_RESET_CONFDIR}"
+    echo "Aborting..."
+    return
+fi
 
 echo "========================"
 echo "VIMRC=${VIM_RESET_VIMRC}"
