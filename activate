@@ -35,20 +35,20 @@ check_vim_reset() {
 
 if check_vim_reset
 then
-    return
+    return 1
 fi
 
 VIM=$( which vim )
 [[ -z ${VIM} ]] && {
     echo "No VIM installed?"
-    return
+    return 1
 }
 
 if [[ -z ${VIM_RESET_CONFDIR} ]]
 then
     echo "Env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
     echo "Aborting..."
-    return
+    return 1
 else
     echo "Using ${VIM_RESET_CONFDIR}" >&2
 fi
@@ -60,7 +60,7 @@ then
     [[ $? -ne 0 ]] && {
         echo "Fail to mkdir ${VIM_RESET_CONFDIR}"
         echo "Aborting..."
-        return
+        return 1
     }
 fi
 
@@ -114,7 +114,7 @@ then
     [[ $? -ne 0 ]] && {
         echo "Fail to mkdir ${VIM_RESET_CONFDIR}/bin"
         echo "Aborting..."
-        return
+        return 1
     }
 fi
 
@@ -136,7 +136,7 @@ then
 else
     echo "Something odd has happend, please check your ${VIM_RESET_CONFDIR}"
     echo "Aborting..."
-    return
+    return 1
 fi
 
 echo "========================"
