@@ -38,6 +38,12 @@ then
     return
 fi
 
+VIM=$( which vim )
+[[ -z ${VIM} ]] && {
+    echo "No VIM installed?"
+    return
+}
+
 if [[ -z ${VIM_RESET_CONFDIR} ]]
 then
     echo "Env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
@@ -52,8 +58,6 @@ then
     echo "Creating ${VIM_RESET_CONFDIR}" >&2
     mkdir -p "${VIM_RESET_CONFDIR}"
 fi
-
-VIM=$( which vim )
 
 if [[ -z ${VIM_RESET_VIMRC} ]]
 then
