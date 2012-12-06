@@ -46,6 +46,8 @@ You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIM_R
 
 You can use `$VIM_RESET_VIMRC` to tell `vim-reset` to use a specific VIM configuration file.
 
+You can use `$VIM_RESET_GVIMRC` to tell `vim-reset` to use a specific GVIM configuration file.
+
 You can use `$VIM_RESET_VIMRTP` to add addtional VIM runtimepath, which is useful for testing plugins.
 
 You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.
