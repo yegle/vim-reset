@@ -30,31 +30,39 @@ get_vim_rtp() {
 
 # check if vim-reset is already working now
 check_vim_reset() {
-    path_push "${VIM_RESET_CONFDIR}/bin"
     grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
+}
+
+if check_vim_reset
+then
+    return 1
+fi
+
+VIM=$( which vim )
+[[ -z ${VIM} ]] && {
+    echo "No VIM installed?"
+    return 1
 }
 
 if [[ -z ${VIM_RESET_CONFDIR} ]]
 then
     echo "Env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
     echo "Aborting..."
-    return
+    return 1
 else
     echo "Using ${VIM_RESET_CONFDIR}" >&2
-fi
-
-if check_vim_reset
-then
-    return
 fi
 
 if [[ ! -d ${VIM_RESET_CONFDIR} ]]
 then
     echo "Creating ${VIM_RESET_CONFDIR}" >&2
     mkdir -p "${VIM_RESET_CONFDIR}"
+    [[ $? -ne 0 ]] && {
+        echo "Fail to mkdir ${VIM_RESET_CONFDIR}"
+        echo "Aborting..."
+        return 1
+    }
 fi
-
-VIM=$( which vim )
 
 if [[ -z ${VIM_RESET_VIMRC} ]]
 then
@@ -103,9 +111,14 @@ VIM_RESET_VIMRTP=$( IFS=","; echo "${_rtps[*]}" )
 if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
 then
     mkdir "${VIM_RESET_CONFDIR}/bin"
+    [[ $? -ne 0 ]] && {
+        echo "Fail to mkdir ${VIM_RESET_CONFDIR}/bin"
+        echo "Aborting..."
+        return 1
+    }
 fi
 
-if [[ ! -f ${VIM_RESET_CONFDIR}/bin/vim ]]
+if [[ ! -e ${VIM_RESET_CONFDIR}/bin/vim ]]
 then
     cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
 #!/usr/bin/env bash
@@ -117,7 +130,14 @@ OUTPUT
     chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
 fi
 
-path_push "${VIM_RESET_CONFDIR}/bin"
+if [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ -x ${VIM_RESET_CONFDIR}/bin/vim ]]
+then
+    path_push "${VIM_RESET_CONFDIR}/bin"
+else
+    echo "Something odd has happend, please check your ${VIM_RESET_CONFDIR}"
+    echo "Aborting..."
+    return 1
+fi
 
 echo "========================"
 echo "VIMRC=${VIM_RESET_VIMRC}"
