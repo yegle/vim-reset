@@ -52,6 +52,7 @@ A bash script so you can customize your very own VIM configurations.
 Usage:
 
     vim-reset [-h|--help] \
+              [--vimrc VIM_RESET_VIMRC] \
               [--confdir VIM_RESET_CONFDIR] \
               [--add-rtp ADDITIONAL_RTP_PATH] ..
 
@@ -59,6 +60,11 @@ Options:
 
     -h, --help
         Show this help information.
+
+    --vimrc VIM_RESET_VIMRC
+        VIM configuration file to be used.
+        If both this option and env-viriable 'VIM_RESET_VIMRC' are
+        set, the value of this option will be used.
 
     --confdir VIM_RESET_CONFDIR
         The main runtimepath of VIM after the resetting.
@@ -103,6 +109,10 @@ vim_reset() {
             -h | --help )
                 show_help
                 return 0
+            ;;
+            --vimrc )
+                VIM_RESET_VIMRC=$2
+                shift
             ;;
             --confdir )
                 VIM_RESET_CONFDIR=$2
