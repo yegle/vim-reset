@@ -19,7 +19,29 @@ path_pop() {
 path_push() {
     local path=$1
     path_pop "${path}"
-    export PATH=${path}:$PATH
+    export PATH=$(normalize "${path}"):$PATH
+}
+
+#
+# Function: normalize
+#
+# Normalize a given path.
+
+# Do not follow symlink. If the given path is a
+# file, normalize parent directory.
+#
+# Params:
+#
+#  $1  path to normalize
+#
+normalize() {
+  local path=$1
+  cd "${path}" 2> /dev/null
+  if [ $? -eq 1 ]; then
+    path=$(dirname "${path}")
+    cd "${path}"
+  fi
+  pwd
 }
 
 get_vim_rtp() {
