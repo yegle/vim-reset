@@ -39,8 +39,9 @@ You may find `vim-reset` similar to [pathogen.vim]( https://github.com/tpope/vim
 ## how to use it?
 
 1. `git clone https://github.com/yegle/vim-reset`
-2. `export VIM_RESET_CONFDIR="${HOME}/myvimconfigdir"`
-3. `source vim-reset/activate`
+2. `source vim-reset/activate`
+3. `export VIM_RESET_CONFDIR="${HOME}/myvimconfigdir"`
+4. `vim-reset`
 
 You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIM_RESET_CONFDIR` now.
 
