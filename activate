@@ -62,6 +62,9 @@ Options:
     -h, --help
         Show this help information.
 
+        --hard
+        Do a hard reset, use only the given rtps.
+
     -f, --force
         Force re-establishing the 'vim-reset'.
 
@@ -111,6 +114,10 @@ Environment Variables:
         Comma separated directory paths, used as the VIM's 'rtp'
         after the resetting. It is useful for testing plugins.
 
+    * `VIM_RESET_HARD`
+        Optional.
+        Do a hard reset, use only the given rtps.
+
     * `VIM_RESET_FORCE`
         Optional.
         Force re-establishing the 'vim-reset'.
@@ -123,6 +130,7 @@ EOF
 }
 
 vim_reset() {
+    declare -i hard=${VIM_RESET_HARD:-0}
     declare -i force=${VIM_RESET_FORCE:-0}
     declare -i revert=${VIM_RESET_REVERT:-0}
 
@@ -132,6 +140,9 @@ vim_reset() {
             -h | --help )
                 show_help
                 return 0
+            ;;
+                 --hard )
+                hard=1
             ;;
             -f | --force )
                 force=1
@@ -350,9 +361,16 @@ vim_revert() {
 }
 
 get_vim_rtp() {
-    ${VIM} 2>/dev/null \
-        -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
-        tail -n1 | cut -d= -f2-
+    if [[ ${hard} -ne 1 ]]
+    then
+        ${VIM} 2>/dev/null \
+            -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
+            tail -n1 | cut -d= -f2-
+    else
+        ${VIM} 2>/dev/null -u NONE \
+            -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
+            tail -n1 | cut -d= -f2-
+    fi
 }
 
 # check if vim-reset is already working now
