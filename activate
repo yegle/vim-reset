@@ -51,12 +51,19 @@ A bash script so you can customize your very own VIM configurations.
 
 Usage:
 
-    vim-reset [-h|--help]
+    vim-reset [-h|--help] \
+              [--confdir VIM_RESET_CONFDIR]
 
 Options:
 
     -h, --help
         Show this help information.
+
+    --confdir VIM_RESET_CONFDIR
+        The main runtimepath of VIM after the resetting.
+        Either this option or env-variable 'VIM_RESET_CONFDIR' has
+        to been set. If they are both set, the value of this option
+        will be used.
 
 Environment Variables:
 
@@ -89,6 +96,10 @@ vim_reset() {
                 show_help
                 return 0
             ;;
+            --confdir )
+                VIM_RESET_CONFDIR=$2
+                shift
+            ;;
         esac
         shift
     done
@@ -110,7 +121,7 @@ vim_reset() {
 
     if [[ -z ${VIM_RESET_CONFDIR} ]]
     then
-        echo "Env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
+        echo "Either '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
         echo "Aborting..."
         return 1
     else
