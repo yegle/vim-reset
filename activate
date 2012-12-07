@@ -53,6 +53,7 @@ Usage:
 
     vim-reset [-h|--help] \
               [--vimrc VIM_RESET_VIMRC] \
+              [--gvimrc VIM_RESET_GVIMRC] \
               [--confdir VIM_RESET_CONFDIR] \
               [--add-rtp ADDITIONAL_RTP_PATH] ..
 
@@ -64,6 +65,11 @@ Options:
     --vimrc VIM_RESET_VIMRC
         VIM configuration file to be used.
         If both this option and env-viriable 'VIM_RESET_VIMRC' are
+        set, the value of this option will be used.
+
+    --gvimrc VIM_RESET_GVIMRC
+        GVIM configuration file to be used.
+        If both this option and env-viriable 'VIM_RESET_GVIMRC' are
         set, the value of this option will be used.
 
     --confdir VIM_RESET_CONFDIR
@@ -112,6 +118,10 @@ vim_reset() {
             ;;
             --vimrc )
                 VIM_RESET_VIMRC=$2
+                shift
+            ;;
+            --gvimrc )
+                VIM_RESET_GVIMRC=$2
                 shift
             ;;
             --confdir )
