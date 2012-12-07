@@ -39,17 +39,24 @@ You may find `vim-reset` similar to [pathogen.vim]( https://github.com/tpope/vim
 ## how to use it?
 
 1. `git clone https://github.com/yegle/vim-reset`
-2. `export VIM_RESET_CONFDIR="${HOME}/myvimconfigdir"`
-3. `source vim-reset/activate`
+2. `source vim-reset/activate`
+3. `export VIM_RESET_CONFDIR="${HOME}/myvimconfigdir"`
+4. `vim-reset`
 
 You can put your `~/.vimrc` files and all your plugins/syntax files into `$VIM_RESET_CONFDIR` now.
 
 You can use `$VIM_RESET_VIMRC` to tell `vim-reset` to use a specific VIM configuration file.
 
+You can use `$VIM_RESET_GVIMRC` to tell `vim-reset` to use a specific GVIM configuration file.
+
 You can use `$VIM_RESET_VIMRTP` to add addtional VIM runtimepath, which is useful for testing plugins.
 
-You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.
+You can use `$VIM_RESET_HARD` to tell `vim-reset` to do a _hard_ reset. By default, `vim-reset` will do a _soft_ reset unless this variable is set to 1. That means the VIM variable `runtimepath` will contain `$VIM_RESET_CONFDIR` along with your old `runtimepath`. On the contrary, a _hard_ reset will make sure the VIM variable `runtimepath` only contain the system default setting along with the paths you specified.
 
-NOTE: `vim-reset` will do a _soft_ reset. That means the vim variable `runtimepath` will contain `$VIM_RESET_CONFDIR` along with your old `runtimepath`.
+You can use `$VIM_RESET_FORCE` to tell `vim-reset` to force re-establishing itself.
+
+You can use `$VIM_RESET_REVERT` to tell `vim-reset` to revert the changes it has made.
+
+You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.
 
 NOTE AGAIN: `vim-reset` uses `$VIM_RESET_CONFDIR/_vimrc` as your main VIM configuration file by default, not `$VIM_RESET_CONFDIR/.vimrc`.
