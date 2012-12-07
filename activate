@@ -237,11 +237,21 @@ vim_reset() {
     if [[ -z ${VIM_RESET_VIMRC} ]]
     then
         VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
+    elif [[ ! -f ${VIM_RESET_VIMRC} ]]
+    then
+        echo "The path specified by '--vimrc' option  or env-variable 'VIM_RESET_VIMRC' has to be a valid file" >&2
+        echo "Aborting..."
+        return 1
     fi
 
     if [[ -z ${VIM_RESET_GVIMRC} ]]
     then
         VIM_RESET_GVIMRC=${VIM_RESET_CONFDIR}/_gvimrc
+    elif [[ ! -f ${VIM_RESET_VIMRC} ]]
+    then
+        echo "The path specified by '--gvimrc' option  or env-variable 'VIM_RESET_GVIMRC' has to be a valid file" >&2
+        echo "Aborting..."
+        return 1
     fi
 
     if [[ -n ${VIM_RESET_VIMRTP} ]]
