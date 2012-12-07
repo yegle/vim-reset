@@ -163,7 +163,7 @@ fi
 VIM_RESET_VIMRTP=${VIM_RESET_VIMRTP},"~/.vim"
 
 declare -a rtps
-IFS=',' read -ra rtps < <(echo ${VIM_RESET_VIMRTP})
+IFS=',' read -ra rtps < <(unset IFS;echo ${VIM_RESET_VIMRTP})
 
 declare -a _rtps
 IFS=',' read -ra _rtps < <(get_vim_rtp)
