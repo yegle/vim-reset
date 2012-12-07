@@ -51,7 +51,7 @@ A bash script so you can customize your very own VIM configurations.
 
 Usage:
 
-    vim-reset [-h|--help] \
+    vim-reset [-h|--help] [-r|--revert] \
               [--vimrc VIM_RESET_VIMRC] \
               [--gvimrc VIM_RESET_GVIMRC] \
               [--confdir VIM_RESET_CONFDIR] \
@@ -61,6 +61,9 @@ Options:
 
     -h, --help
         Show this help information.
+
+    -r, --revert
+        Revert the changes made by 'vim-reset'.
 
     --vimrc VIM_RESET_VIMRC
         VIM configuration file to be used.
@@ -105,16 +108,25 @@ Environment Variables:
         Comma separated directory paths, used as the VIM's 'rtp'
         after the resetting. It is useful for testing plugins.
 
+    * `VIM_RESET_REVERT`
+        Optional.
+        Revert the changes made by 'vim-reset'.
+
 EOF
 }
 
 vim_reset() {
+    declare -i revert=${VIM_RESET_REVERT:-0}
+
     while [ $# -gt 0 ]
     do
         case $1 in
             -h | --help )
                 show_help
                 return 0
+            ;;
+            -r | --revert )
+                revert=1
             ;;
             --vimrc )
                 VIM_RESET_VIMRC=$2
@@ -142,6 +154,23 @@ vim_reset() {
 
     if check_vim_reset
     then
+        echo "'vim-reset' has been established"
+
+        if [[ ${revert} -eq 1 ]]
+        then
+            echo "Reverting changes..."
+            vim_revert
+            return 0
+        fi
+
+        echo "Aborting..."
+        return 1
+    fi
+
+    if [[ ${revert} -eq 1 ]]
+    then
+        echo "'vim-reset' has not been established yet"
+        echo "Aborting..."
         return 1
     fi
 
@@ -284,6 +313,13 @@ OUTPUT
     unset VIM_RESET_VIMRC
     unset VIM_RESET_GVIMRC
     unset VIM_RESET_VIMRTP
+}
+
+vim_revert() {
+    while grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
+    do
+        path_pop "$( dirname $( which vim ) )"
+    done
 }
 
 get_vim_rtp() {
