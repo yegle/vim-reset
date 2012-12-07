@@ -44,6 +44,69 @@ normalize() {
   pwd
 }
 
+hijack_vim() {
+    if [[ ! -d ${VIM_RESET_CONFDIR} ]]
+    then
+        echo "Creating ${VIM_RESET_CONFDIR}" >&2
+        mkdir -p "${VIM_RESET_CONFDIR}"
+        [[ $? -ne 0 ]] && {
+            echo "Fail to mkdir ${VIM_RESET_CONFDIR}"
+            echo "Aborting..."
+            return 1
+        }
+    fi
+
+    if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
+    then
+        mkdir "${VIM_RESET_CONFDIR}/bin"
+        [[ $? -ne 0 ]] && {
+            echo "Fail to mkdir ${VIM_RESET_CONFDIR}/bin"
+            echo "Aborting..."
+            return 1
+        }
+    fi
+
+    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/vim ]]
+    then
+        cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
+#!/usr/bin/env bash
+# GENERATED_BY_VIM_RESET
+# don't delete the line above
+
+${VIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' \$@
+OUTPUT
+        chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
+    fi
+
+    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/gvim ]]
+    then
+        cat > "${VIM_RESET_CONFDIR}/bin/gvim" <<OUTPUT
+#!/usr/bin/env bash
+# GENERATED_BY_VIM_RESET
+# don't delete the line above
+
+${GVIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' -U '${VIM_RESET_GVIMRC}' \$@
+OUTPUT
+        chmod +x "${VIM_RESET_CONFDIR}/bin/gvim"
+    fi
+
+    if [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ -x ${VIM_RESET_CONFDIR}/bin/vim ]]
+    then
+        path_push "${VIM_RESET_CONFDIR}/bin"
+    else
+        echo "Something odd has happend, please check ${VIM_RESET_CONFDIR}/bin/vim"
+        echo "Aborting..."
+        return 1
+    fi
+
+    [[ ! -e ${VIM_RESET_VIMRC} ]] && touch "${VIM_RESET_VIMRC}"
+    [[ ! -e ${VIM_RESET_GVIMRC} ]] && touch "${VIM_RESET_GVIMRC}"
+
+    unset VIM_RESET_VIMRC
+    unset VIM_RESET_GVIMRC
+    unset VIM_RESET_VIMRTP
+}
+
 get_vim_rtp() {
     ${VIM} 2>/dev/null \
         -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
@@ -78,17 +141,6 @@ then
     return 1
 else
     echo "Using ${VIM_RESET_CONFDIR}" >&2
-fi
-
-if [[ ! -d ${VIM_RESET_CONFDIR} ]]
-then
-    echo "Creating ${VIM_RESET_CONFDIR}" >&2
-    mkdir -p "${VIM_RESET_CONFDIR}"
-    [[ $? -ne 0 ]] && {
-        echo "Fail to mkdir ${VIM_RESET_CONFDIR}"
-        echo "Aborting..."
-        return 1
-    }
 fi
 
 if [[ -z ${VIM_RESET_VIMRC} ]]
@@ -140,58 +192,10 @@ do
 done
 VIM_RESET_VIMRTP=$( IFS=","; echo "${_rtps[*]}" )
 
-if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
-then
-    mkdir "${VIM_RESET_CONFDIR}/bin"
-    [[ $? -ne 0 ]] && {
-        echo "Fail to mkdir ${VIM_RESET_CONFDIR}/bin"
-        echo "Aborting..."
-        return 1
-    }
-fi
-
-if [[ ! -e ${VIM_RESET_CONFDIR}/bin/vim ]]
-then
-    cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
-#!/usr/bin/env bash
-# GENERATED_BY_VIM_RESET
-# don't delete the line above
-
-${VIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' \$@
-OUTPUT
-    chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
-fi
-
-if [[ ! -e ${VIM_RESET_CONFDIR}/bin/gvim ]]
-then
-    cat > "${VIM_RESET_CONFDIR}/bin/gvim" <<OUTPUT
-#!/usr/bin/env bash
-# GENERATED_BY_VIM_RESET
-# don't delete the line above
-
-${GVIM} --cmd 'set runtimepath=${VIMRTP}' -u '${VIMRC}' -U '${VIM_RESET_GVIMRC}' \$@
-OUTPUT
-    chmod +x "${VIM_RESET_CONFDIR}/bin/gvim"
-fi
-
-if [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ -x ${VIM_RESET_CONFDIR}/bin/vim ]]
-then
-    path_push "${VIM_RESET_CONFDIR}/bin"
-else
-    echo "Something odd has happend, please check your ${VIM_RESET_CONFDIR}"
-    echo "Aborting..."
-    return 1
-fi
-
-[[ ! -e ${VIM_RESET_VIMRC} ]] && touch "${VIM_RESET_VIMRC}"
-[[ ! -e ${VIM_RESET_GVIMRC} ]] && touch "${VIM_RESET_GVIMRC}"
-
 echo "========================"
 echo "VIMRC=${VIM_RESET_VIMRC}"
 echo "GVIMRC=${VIM_RESET_GVIMRC}"
 echo "VIMRTP=${VIM_RESET_VIMRTP}"
 echo "========================"
 
-unset VIM_RESET_VIMRC
-unset VIM_RESET_GVIMRC
-unset VIM_RESET_VIMRTP
+hijack_vim || return 1
