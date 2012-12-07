@@ -182,7 +182,7 @@ do
         _rtp=${_rtps[${_rtp_i}]}
         {
             [[ ${rtp%/} == ${_rtp%/} ]] || \
-                [[ ${rtp%/}/after == ${_rtp%/}/after ]]
+                [[ ${rtp%/}/after == ${_rtp%/} ]]
         } && {
             unset _rtps[${_rtp_i}]
         }
