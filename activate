@@ -225,6 +225,11 @@ vim_reset() {
         echo "Either '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
         echo "Aborting..."
         return 1
+    elif [[ ! -d ${VIM_RESET_CONFDIR} ]]
+    then
+        echo "The path specified by '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be a valid directory" >&2
+        echo "Aborting..."
+        return 1
     else
         echo "Using ${VIM_RESET_CONFDIR}" >&2
     fi
@@ -232,11 +237,21 @@ vim_reset() {
     if [[ -z ${VIM_RESET_VIMRC} ]]
     then
         VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
+    elif [[ ! -f ${VIM_RESET_VIMRC} ]]
+    then
+        echo "The path specified by '--vimrc' option  or env-variable 'VIM_RESET_VIMRC' has to be a valid file" >&2
+        echo "Aborting..."
+        return 1
     fi
 
     if [[ -z ${VIM_RESET_GVIMRC} ]]
     then
         VIM_RESET_GVIMRC=${VIM_RESET_CONFDIR}/_gvimrc
+    elif [[ ! -f ${VIM_RESET_VIMRC} ]]
+    then
+        echo "The path specified by '--gvimrc' option  or env-variable 'VIM_RESET_GVIMRC' has to be a valid file" >&2
+        echo "Aborting..."
+        return 1
     fi
 
     if [[ -n ${VIM_RESET_VIMRTP} ]]
@@ -289,17 +304,6 @@ vim_reset() {
 }
 
 hijack_vim() {
-    if [[ ! -d ${VIM_RESET_CONFDIR} ]]
-    then
-        echo "Creating ${VIM_RESET_CONFDIR}" >&2
-        mkdir -p "${VIM_RESET_CONFDIR}"
-        [[ $? -ne 0 ]] && {
-            echo "Fail to mkdir ${VIM_RESET_CONFDIR}"
-            echo "Aborting..."
-            return 1
-        }
-    fi
-
     if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
     then
         mkdir "${VIM_RESET_CONFDIR}/bin"
