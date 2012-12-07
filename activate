@@ -94,6 +94,7 @@ vim_reset() {
     declare -a _rtps
     IFS=',' read -ra _rtps < <(get_vim_rtp)
 
+    local rtp rtp_i _rtp _rtp_i
     for rtp_i in ${!rtps[*]}
     do
         # Preserve the exact order of the rtps
