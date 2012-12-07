@@ -51,6 +51,8 @@ You can use `$VIM_RESET_GVIMRC` to tell `vim-reset` to use a specific GVIM confi
 
 You can use `$VIM_RESET_VIMRTP` to add addtional VIM runtimepath, which is useful for testing plugins.
 
+You can use `$VIM_RESET_FORCE` to tell `vim-reset` to force re-establishing itself.
+
 You can use `$VIM_RESET_REVERT` to tell `vim-reset` to revert the changes it has made.
 
 You can also add these commands to your `~/.bashrc` file and run `vim-reset` each time you invoke an interactive shell.

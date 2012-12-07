@@ -51,7 +51,7 @@ A bash script so you can customize your very own VIM configurations.
 
 Usage:
 
-    vim-reset [-h|--help] [-r|--revert] \
+    vim-reset [-h|--help] [-f|--force] [-r|--revert] \
               [--vimrc VIM_RESET_VIMRC] \
               [--gvimrc VIM_RESET_GVIMRC] \
               [--confdir VIM_RESET_CONFDIR] \
@@ -61,6 +61,9 @@ Options:
 
     -h, --help
         Show this help information.
+
+    -f, --force
+        Force re-establishing the 'vim-reset'.
 
     -r, --revert
         Revert the changes made by 'vim-reset'.
@@ -108,6 +111,10 @@ Environment Variables:
         Comma separated directory paths, used as the VIM's 'rtp'
         after the resetting. It is useful for testing plugins.
 
+    * `VIM_RESET_FORCE`
+        Optional.
+        Force re-establishing the 'vim-reset'.
+
     * `VIM_RESET_REVERT`
         Optional.
         Revert the changes made by 'vim-reset'.
@@ -116,6 +123,7 @@ EOF
 }
 
 vim_reset() {
+    declare -i force=${VIM_RESET_FORCE:-0}
     declare -i revert=${VIM_RESET_REVERT:-0}
 
     while [ $# -gt 0 ]
@@ -124,6 +132,9 @@ vim_reset() {
             -h | --help )
                 show_help
                 return 0
+            ;;
+            -f | --force )
+                force=1
             ;;
             -r | --revert )
                 revert=1
@@ -156,18 +167,32 @@ vim_reset() {
     then
         echo "'vim-reset' has been established"
 
-        if [[ ${revert} -eq 1 ]]
+        if [[ ${force} -eq 1 ]]
+        then
+            echo "Re-establishing 'vim-reset'..."
+        fi
+
+        if [[ ${force} -eq 1 ]] || [[ ${revert} -eq 1 ]]
         then
             echo "Reverting changes..."
             vim_revert
+        fi
+
+        if [[ ${force} -ne 1 ]] && [[ ${revert} -eq 1 ]]
+        then
             return 0
         fi
 
-        echo "Aborting..."
-        return 1
+        if [[ ${force} -ne 1 ]]
+        then
+            echo "If you want to re-establish the 'vim-reset', then"
+            echo "use '--force' option or set 'VIM_RESET_FORCE' to 1."
+            echo "Aborting..."
+            return 1
+        fi
     fi
 
-    if [[ ${revert} -eq 1 ]]
+    if [[ ${force} -ne 1 ]] && [[ ${revert} -eq 1 ]]
     then
         echo "'vim-reset' has not been established yet"
         echo "Aborting..."
@@ -274,7 +299,8 @@ hijack_vim() {
         }
     fi
 
-    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/vim ]]
+    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/vim ]] || \
+        [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ ${force} -eq 1 ]]
     then
         cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
 #!/usr/bin/env bash
@@ -286,7 +312,8 @@ OUTPUT
         chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
     fi
 
-    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/gvim ]]
+    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/gvim ]] || \
+        [[ -f ${VIM_RESET_CONFDIR}/bin/gvim ]] && [[ ${force} -eq 1 ]]
     then
         cat > "${VIM_RESET_CONFDIR}/bin/gvim" <<OUTPUT
 #!/usr/bin/env bash
