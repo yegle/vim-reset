@@ -44,7 +44,55 @@ normalize() {
   pwd
 }
 
+show_help() {
+    cat << 'EOF'
+
+A bash script so you can customize your very own VIM configurations.
+
+Usage:
+
+    vim-reset [-h|--help]
+
+Options:
+
+    -h, --help
+        Show this help information.
+
+Environment Variables:
+
+
+    * `VIM_RESET_CONFDIR`
+        Required.
+        The main runtimepath of VIM after the resetting.
+
+    * `VIM_RESET_VIMRC`
+        Optional, default is '$VIM_RESET_CONFDIR/_vimrc'
+        VIM configuration file to be used.
+
+    * `VIM_RESET_GVIMRC`
+        Optional, default is '$VIM_RESET_CONFDIR/_gvimrc'
+        GVIM configuration file to be used.
+
+    * `VIM_RESET_VIMRTP`
+        Optional.
+        Comma separated directory paths, used as the VIM's 'rtp'
+        after the resetting. It is useful for testing plugins.
+
+EOF
+}
+
 vim_reset() {
+    while [ $# -gt 0 ]
+    do
+        case $1 in
+            -h | --help )
+                show_help
+                return 0
+            ;;
+        esac
+        shift
+    done
+
     if check_vim_reset
     then
         return 1
