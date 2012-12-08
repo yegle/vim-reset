@@ -159,14 +159,14 @@ vim_reset() {
                 shift
             ;;
             --confdir )
-                VIM_RESET_CONFDIR=$2
+                VIM_RESET_CONFDIR=${2%/}
                 shift
             ;;
             --add-rtp )
                 [[ -z ${VIM_RESET_VIMRTP} ]] && {
-                    VIM_RESET_VIMRTP=$2
+                    VIM_RESET_VIMRTP=${2%/}
                 } || {
-                    VIM_RESET_VIMRTP=${VIM_RESET_VIMRTP},$2
+                    VIM_RESET_VIMRTP=${VIM_RESET_VIMRTP},${2%/}
                 }
                 shift
             ;;
