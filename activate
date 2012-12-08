@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+# escape $' \n \t' characters in a string
+escape() {
+    res=$1
+    res=${res// /\\ }
+    res=${res//$'\t'/\\$'\t'}
+    res=${res//$'\n'/\\$'\n'}
+    echo "${res}"
+
+    return 0
+}
+
 # pop $1 from PATH environment variable
 path_pop() {
     local path=$1
@@ -8,7 +19,7 @@ path_pop() {
     IFS=':' read -ra path_array <<< "$PATH"
     for path_index in ${!path_array[*]}
     do
-        [[ ${path%/} == ${path_array[${path_index}]%/} ]] && {
+        eval [[ $( escape "${path%/}" ) == $( escape "${path_array[${path_index}]%/}" ) ]] && {
             unset path_array[${path_index}]
         }
     done
@@ -313,15 +324,15 @@ vim_deploy() {
         rtp=${rtps[$((${#rtps[@]} - ${rtp_i} - 1))]}
 
         # Skip non-directory path
-        [[ -d ${rtp} ]] || continue
+        eval [[ -d $( escape "${rtp}" ) ]] || continue
 
         # Remove duplicate paths
         for _rtp_i in ${!_rtps[*]}
         do
             _rtp=${_rtps[${_rtp_i}]}
             {
-                [[ ${rtp%/} == ${_rtp%/} ]] || \
-                    [[ ${rtp%/}/after == ${_rtp%/} ]]
+                eval [[ $( escape "${rtp%/}" ) == $( escape "${_rtp%/}" ) ]] || \
+                    eval [[ $( escape "${rtp%/}/after" ) == $( escape "${_rtp%/}" ) ]]
             } && {
                 unset _rtps[${_rtp_i}]
             }
