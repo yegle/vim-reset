@@ -174,7 +174,7 @@ vim_reset() {
         shift
     done
 
-    if check_vim_reset
+    if grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
     then
         echo "'vim-reset' has been established"
 
@@ -375,11 +375,6 @@ get_vim_rtp() {
             -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
             tail -n1 | cut -d= -f2-
     fi
-}
-
-# check if vim-reset is already working now
-check_vim_reset() {
-    grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
 }
 
 alias vim-reset=vim_reset
