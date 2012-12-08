@@ -390,7 +390,7 @@ vim_hijack() {
 vim_revert() {
     while grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
     do
-        path_pop "$( dirname $( which vim ) )"
+        path_pop "$( dirname "$( which vim )" )"
     done
 
     return 0
