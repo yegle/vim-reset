@@ -186,6 +186,14 @@ vim_reset() {
         shift
     done
 
+    if [[ -z ${confdir} ]]
+    then
+        force=0
+    elif [[ ${hard} -eq 1 ]] || [[ -n ${vimrc} ]] || [[ -n ${gvimrc} ]] || [[ -n ${vimrtp} ]]
+    then
+        force=1
+    fi
+
     if grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
     then
         echo "'vim-reset' has been established"
