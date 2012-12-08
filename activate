@@ -1,5 +1,16 @@
 #!/usr/bin/env bash
 
+# escape $' \n \t' characters in a string
+escape() {
+    res=$1
+    res=${res// /\\ }
+    res=${res//$'\t'/\\$'\t'}
+    res=${res//$'\n'/\\$'\n'}
+    echo "${res}"
+
+    return 0
+}
+
 # pop $1 from PATH environment variable
 path_pop() {
     local path=$1
@@ -8,7 +19,7 @@ path_pop() {
     IFS=':' read -ra path_array <<< "$PATH"
     for path_index in ${!path_array[*]}
     do
-        [[ ${path%/} == ${path_array[${path_index}]%/} ]] && {
+        eval [[ $( escape "${path%/}" ) == $( escape "${path_array[${path_index}]%/}" ) ]] && {
             unset path_array[${path_index}]
         }
     done
@@ -141,6 +152,10 @@ vim_reset() {
     declare -i hard=${VIM_RESET_HARD:-0}
     declare -i force=${VIM_RESET_FORCE:-0}
     declare -i revert=${VIM_RESET_REVERT:-0}
+    local confdir=${VIM_RESET_CONFDIR}
+    local vimrc=${VIM_RESET_VIMRC}
+    local gvimrc=${VIM_RESET_GVIMRC}
+    local vimrtp=${VIM_RESET_VIMRTP}
 
     while [ $# -gt 0 ]
     do
@@ -159,28 +174,36 @@ vim_reset() {
                 revert=1
             ;;
             --vimrc )
-                VIM_RESET_VIMRC=$2
+                vimrc=$2
                 shift
             ;;
             --gvimrc )
-                VIM_RESET_GVIMRC=$2
+                gvimrc=$2
                 shift
             ;;
             --confdir )
-                VIM_RESET_CONFDIR=${2%/}
+                confdir=${2%/}
                 shift
             ;;
             --add-rtp )
-                [[ -z ${VIM_RESET_VIMRTP} ]] && {
-                    VIM_RESET_VIMRTP=${2%/}
+                [[ -z ${vimrtp} ]] && {
+                    vimrtp=${2%/}
                 } || {
-                    VIM_RESET_VIMRTP=${VIM_RESET_VIMRTP},${2%/}
+                    vimrtp=${vimrtp},${2%/}
                 }
                 shift
             ;;
         esac
         shift
     done
+
+    if [[ -z ${confdir} ]]
+    then
+        force=0
+    elif [[ ${hard} -eq 1 ]] || [[ -n ${vimrc} ]] || [[ -n ${gvimrc} ]] || [[ -n ${vimrtp} ]]
+    then
+        force=1
+    fi
 
     if grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
     then
@@ -218,61 +241,78 @@ vim_reset() {
         return 1
     fi
 
-    VIM=$( which vim )
-    [[ -z ${VIM} ]] && {
-        echo "No VIM installed?"
-        return 1
-    }
-    GVIM=$( which gvim )
-    [[ -z ${GVIM} ]] && {
-        GVIM=${VIM}
-    }
-
-    if [[ -z ${VIM_RESET_CONFDIR} ]]
+    if [[ -z ${confdir} ]]
     then
         echo "Either '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
         echo "Aborting..."
         return 1
-    elif [[ ! -d ${VIM_RESET_CONFDIR} ]]
+    elif [[ ! -d ${confdir} ]]
     then
         echo "The path specified by '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be a valid directory" >&2
         echo "Aborting..."
         return 1
     else
-        echo "Using ${VIM_RESET_CONFDIR}" >&2
+        echo "Using ${confdir}" >&2
     fi
 
-    if [[ -z ${VIM_RESET_VIMRC} ]]
+    if [[ ${force} -eq 1 ]] && [[ -f ${confdir}/bin/vim ]] || \
+        [[ ! -e ${confdir}/bin/vim ]]
     then
-        VIM_RESET_VIMRC=${VIM_RESET_CONFDIR}/_vimrc
-    elif [[ ! -f ${VIM_RESET_VIMRC} ]]
+        vim_deploy || return $?
+    elif [[ ${force} -ne 1 ]] && [[ -f ${confdir}/bin/vim ]] && \
+        [[ -x ${confdir}/bin/vim ]]
+    then
+        echo "Use an existing vim-reset facility, ${confdir}/bin"
+    fi
+
+    vim_hijack || return $?
+
+    return 0
+}
+
+vim_deploy() {
+    local VIM=$( which vim )
+    [[ -z ${VIM} ]] && {
+        echo "No VIM installed?"
+        return 1
+    }
+
+    local GVIM=$( which gvim )
+    [[ -z ${GVIM} ]] && {
+        GVIM=${VIM}
+    }
+
+    if [[ -z ${vimrc} ]]
+    then
+        vimrc=${confdir}/_vimrc
+    elif [[ ! -f ${vimrc} ]]
     then
         echo "The path specified by '--vimrc' option  or env-variable 'VIM_RESET_VIMRC' has to be a valid file" >&2
         echo "Aborting..."
         return 1
     fi
 
-    if [[ -z ${VIM_RESET_GVIMRC} ]]
+    if [[ -z ${gvimrc} ]]
     then
-        VIM_RESET_GVIMRC=${VIM_RESET_CONFDIR}/_gvimrc
-    elif [[ ! -f ${VIM_RESET_VIMRC} ]]
+        gvimrc=${confdir}/_gvimrc
+    elif [[ ! -f ${gvimrc} ]]
     then
         echo "The path specified by '--gvimrc' option  or env-variable 'VIM_RESET_GVIMRC' has to be a valid file" >&2
         echo "Aborting..."
         return 1
     fi
 
-    if [[ -n ${VIM_RESET_VIMRTP} ]]
+    if [[ -n ${vimrtp} ]]
     then
-        VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR},${VIM_RESET_VIMRTP}
+        vimrtp=${confdir},${vimrtp}
     else
-        VIM_RESET_VIMRTP=${VIM_RESET_CONFDIR}
+        vimrtp=${confdir}
     fi
 
-    VIM_RESET_VIMRTP=${VIM_RESET_VIMRTP},"~/.vim"
+    vimrtp=${vimrtp},"~/.vim"
 
     declare -a rtps
-    IFS=',' read -ra rtps < <(unset IFS;echo ${VIM_RESET_VIMRTP})
+    IFS=',' read -ra rtps < <(unset IFS;echo ${vimrtp})
 
     declare -a _rtps
     IFS=',' read -ra _rtps < <(get_vim_rtp)
@@ -284,15 +324,15 @@ vim_reset() {
         rtp=${rtps[$((${#rtps[@]} - ${rtp_i} - 1))]}
 
         # Skip non-directory path
-        [[ -d ${rtp} ]] || continue
+        eval [[ -d $( escape "${rtp}" ) ]] || continue
 
         # Remove duplicate paths
         for _rtp_i in ${!_rtps[*]}
         do
             _rtp=${_rtps[${_rtp_i}]}
             {
-                [[ ${rtp%/} == ${_rtp%/} ]] || \
-                    [[ ${rtp%/}/after == ${_rtp%/} ]]
+                eval [[ $( escape "${rtp%/}" ) == $( escape "${_rtp%/}" ) ]] || \
+                    eval [[ $( escape "${rtp%/}/after" ) == $( escape "${_rtp%/}" ) ]]
             } && {
                 unset _rtps[${_rtp_i}]
             }
@@ -300,71 +340,60 @@ vim_reset() {
         [[ ${rtp} == "~/.vim" ]] && continue
         _rtps=( "${rtp}" "${_rtps[@]}" "${rtp}"/after )
     done
-    VIM_RESET_VIMRTP=$( IFS=","; echo "${_rtps[*]}" )
+    vimrtp=$( IFS=","; echo "${_rtps[*]}" )
 
     echo "========================"
-    echo "VIMRC=${VIM_RESET_VIMRC}"
-    echo "GVIMRC=${VIM_RESET_GVIMRC}"
-    echo "VIMRTP=${VIM_RESET_VIMRTP}"
+    echo "VIMRC=${vimrc}"
+    echo "GVIMRC=${gvimrc}"
+    echo "VIMRTP=${vimrtp}"
     echo "========================"
 
-    hijack_vim || return $?
-
-    return 0
-}
-
-hijack_vim() {
-    if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
+    if [[ ! -d ${confdir}/bin ]]
     then
-        mkdir "${VIM_RESET_CONFDIR}/bin"
+        mkdir "${confdir}/bin"
         [[ $? -ne 0 ]] && {
-            echo "Fail to mkdir ${VIM_RESET_CONFDIR}/bin"
+            echo "Fail to mkdir ${confdir}/bin"
             echo "Aborting..."
             return 1
         }
     fi
 
-    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/vim ]] || \
-        [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ ${force} -eq 1 ]]
-    then
-        cat > "${VIM_RESET_CONFDIR}/bin/vim" <<OUTPUT
+    cat > "${confdir}/bin/vim" <<OUTPUT
 #!/usr/bin/env bash
 # GENERATED_BY_VIM_RESET
 # don't delete the line above
 
-${VIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' \$@
+${VIM} --cmd 'set runtimepath=${vimrtp}' -u '${vimrc}' \$@
 OUTPUT
-        chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
-    fi
 
-    if [[ ! -e ${VIM_RESET_CONFDIR}/bin/gvim ]] || \
-        [[ -f ${VIM_RESET_CONFDIR}/bin/gvim ]] && [[ ${force} -eq 1 ]]
-    then
-        cat > "${VIM_RESET_CONFDIR}/bin/gvim" <<OUTPUT
+    chmod +x "${confdir}/bin/vim"
+
+    [[ ! -e ${vimrc} ]] && touch "${vimrc}"
+
+    cat > "${confdir}/bin/gvim" <<OUTPUT
 #!/usr/bin/env bash
 # GENERATED_BY_VIM_RESET
 # don't delete the line above
 
-${GVIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' -U '${VIM_RESET_GVIMRC}' \$@
+${GVIM} --cmd 'set runtimepath=${vimrtp}' -u '${vimrc}' -U '${gvimrc}' \$@
 OUTPUT
-        chmod +x "${VIM_RESET_CONFDIR}/bin/gvim"
-    fi
 
-    if [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ -x ${VIM_RESET_CONFDIR}/bin/vim ]]
+    chmod +x "${confdir}/bin/gvim"
+
+    [[ ! -e ${gvimrc} ]] && touch "${gvimrc}"
+
+    return 0
+}
+
+vim_hijack() {
+    if [[ -f ${confdir}/bin/vim ]] && [[ -x ${confdir}/bin/vim ]]
     then
-        path_push "${VIM_RESET_CONFDIR}/bin"
+        path_push "${confdir}/bin"
     else
-        echo "Something odd has happend, please check ${VIM_RESET_CONFDIR}/bin/vim"
+        echo "Something odd has happend, please check ${confdir}/bin/vim"
         echo "Aborting..."
         return 1
     fi
-
-    [[ ! -e ${VIM_RESET_VIMRC} ]] && touch "${VIM_RESET_VIMRC}"
-    [[ ! -e ${VIM_RESET_GVIMRC} ]] && touch "${VIM_RESET_GVIMRC}"
-
-    unset VIM_RESET_VIMRC
-    unset VIM_RESET_GVIMRC
-    unset VIM_RESET_VIMRTP
 
     return 0
 }
@@ -372,7 +401,7 @@ OUTPUT
 vim_revert() {
     while grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
     do
-        path_pop "$( dirname $( which vim ) )"
+        path_pop "$( dirname "$( which vim )" )"
     done
 
     return 0
