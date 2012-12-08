@@ -334,7 +334,10 @@ hijack_vim() {
 
 ${VIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' \$@
 OUTPUT
+
         chmod +x "${VIM_RESET_CONFDIR}/bin/vim"
+
+        [[ ! -e ${VIM_RESET_VIMRC} ]] && touch "${VIM_RESET_VIMRC}"
     fi
 
     if [[ ! -e ${VIM_RESET_CONFDIR}/bin/gvim ]] || \
@@ -347,7 +350,10 @@ OUTPUT
 
 ${GVIM} --cmd 'set runtimepath=${VIM_RESET_VIMRTP}' -u '${VIM_RESET_VIMRC}' -U '${VIM_RESET_GVIMRC}' \$@
 OUTPUT
+
         chmod +x "${VIM_RESET_CONFDIR}/bin/gvim"
+
+        [[ ! -e ${VIM_RESET_GVIMRC} ]] && touch "${VIM_RESET_GVIMRC}"
     fi
 
     if [[ -f ${VIM_RESET_CONFDIR}/bin/vim ]] && [[ -x ${VIM_RESET_CONFDIR}/bin/vim ]]
@@ -358,9 +364,6 @@ OUTPUT
         echo "Aborting..."
         return 1
     fi
-
-    [[ ! -e ${VIM_RESET_VIMRC} ]] && touch "${VIM_RESET_VIMRC}"
-    [[ ! -e ${VIM_RESET_GVIMRC} ]] && touch "${VIM_RESET_GVIMRC}"
 
     unset VIM_RESET_VIMRC
     unset VIM_RESET_GVIMRC
