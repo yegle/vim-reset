@@ -308,12 +308,12 @@ vim_reset() {
     echo "VIMRTP=${VIM_RESET_VIMRTP}"
     echo "========================"
 
-    hijack_vim || return $?
+    vim_hijack || return $?
 
     return 0
 }
 
-hijack_vim() {
+vim_hijack() {
     if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
     then
         mkdir "${VIM_RESET_CONFDIR}/bin"
