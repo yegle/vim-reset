@@ -363,10 +363,6 @@ OUTPUT
 
     [[ ! -e ${gvimrc} ]] && touch "${gvimrc}"
 
-    unset VIM_RESET_VIMRC
-    unset VIM_RESET_GVIMRC
-    unset VIM_RESET_VIMRTP
-
     return 0
 }
 
