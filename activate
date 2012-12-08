@@ -13,6 +13,8 @@ path_pop() {
         }
     done
     export PATH=$( IFS=":"; echo "${path_array[*]}" )
+
+    return 0
 }
 
 # push $1 as the first directory of PATH environment variable
@@ -20,6 +22,8 @@ path_push() {
     local path=$1
     path_pop "${path}"
     export PATH=$(normalize "${path}"):$PATH
+
+    return 0
 }
 
 #
@@ -42,6 +46,8 @@ normalize() {
     cd "${path}"
   fi
   pwd
+
+  return 0
 }
 
 show_help() {
@@ -127,6 +133,8 @@ Environment Variables:
         Revert the changes made by 'vim-reset'.
 
 EOF
+
+return 0
 }
 
 vim_reset() {
@@ -300,7 +308,9 @@ vim_reset() {
     echo "VIMRTP=${VIM_RESET_VIMRTP}"
     echo "========================"
 
-    hijack_vim || return 1
+    hijack_vim || return $?
+
+    return 0
 }
 
 hijack_vim() {
@@ -355,6 +365,8 @@ OUTPUT
     unset VIM_RESET_VIMRC
     unset VIM_RESET_GVIMRC
     unset VIM_RESET_VIMRTP
+
+    return 0
 }
 
 vim_revert() {
@@ -362,6 +374,8 @@ vim_revert() {
     do
         path_pop "$( dirname $( which vim ) )"
     done
+
+    return 0
 }
 
 get_vim_rtp() {
@@ -375,6 +389,8 @@ get_vim_rtp() {
             -c "redir! > /dev/stdout" -c 'set runtimepath' -c 'q' | \
             tail -n1 | cut -d= -f2-
     fi
+
+    return 0
 }
 
 alias vim-reset=vim_reset
