@@ -218,16 +218,6 @@ vim_reset() {
         return 1
     fi
 
-    VIM=$( which vim )
-    [[ -z ${VIM} ]] && {
-        echo "No VIM installed?"
-        return 1
-    }
-    GVIM=$( which gvim )
-    [[ -z ${GVIM} ]] && {
-        GVIM=${VIM}
-    }
-
     if [[ -z ${VIM_RESET_CONFDIR} ]]
     then
         echo "Either '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
@@ -241,6 +231,23 @@ vim_reset() {
     else
         echo "Using ${VIM_RESET_CONFDIR}" >&2
     fi
+
+    vim_hijack || return $?
+
+    return 0
+}
+
+vim_hijack() {
+    VIM=$( which vim )
+    [[ -z ${VIM} ]] && {
+        echo "No VIM installed?"
+        return 1
+    }
+
+    GVIM=$( which gvim )
+    [[ -z ${GVIM} ]] && {
+        GVIM=${VIM}
+    }
 
     if [[ -z ${VIM_RESET_VIMRC} ]]
     then
@@ -308,12 +315,6 @@ vim_reset() {
     echo "VIMRTP=${VIM_RESET_VIMRTP}"
     echo "========================"
 
-    vim_hijack || return $?
-
-    return 0
-}
-
-vim_hijack() {
     if [[ ! -d ${VIM_RESET_CONFDIR}/bin ]]
     then
         mkdir "${VIM_RESET_CONFDIR}/bin"
