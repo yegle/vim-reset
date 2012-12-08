@@ -207,16 +207,16 @@ vim_reset() {
 
     if grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
     then
-        echo "'vim-reset' has been established"
+        echo "'vim-reset' has been established" >&2
 
         if [[ ${force} -eq 1 ]]
         then
-            echo "Re-establishing 'vim-reset'..."
+            echo "Re-establishing 'vim-reset'..." >&2
         fi
 
         if [[ ${force} -eq 1 ]] || [[ ${revert} -eq 1 ]]
         then
-            echo "Reverting changes..."
+            echo "Reverting changes..." >&2
             vim_revert
         fi
 
@@ -227,29 +227,29 @@ vim_reset() {
 
         if [[ ${force} -ne 1 ]]
         then
-            echo "If you want to re-establish the 'vim-reset', then"
-            echo "use '--force' option or set 'VIM_RESET_FORCE' to 1."
-            echo "Aborting..."
+            echo "If you want to re-establish the 'vim-reset', then" >&2
+            echo "use '--force' option or set 'VIM_RESET_FORCE' to 1." >&2
+            echo "Aborting..." >&2
             return 1
         fi
     fi
 
     if [[ ${force} -ne 1 ]] && [[ ${revert} -eq 1 ]]
     then
-        echo "'vim-reset' has not been established yet"
-        echo "Aborting..."
+        echo "'vim-reset' has not been established yet" >&2
+        echo "Aborting..." >&2
         return 1
     fi
 
     if [[ -z ${confdir} ]]
     then
         echo "Either '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be set" >&2
-        echo "Aborting..."
+        echo "Aborting..." >&2
         return 1
     elif [[ ! -d ${confdir} ]]
     then
         echo "The path specified by '--confdir' option  or env-variable 'VIM_RESET_CONFDIR' has to be a valid directory" >&2
-        echo "Aborting..."
+        echo "Aborting..." >&2
         return 1
     else
         echo "Using ${confdir}" >&2
@@ -262,7 +262,7 @@ vim_reset() {
     elif [[ ${force} -ne 1 ]] && [[ -f ${confdir}/bin/vim ]] && \
         [[ -x ${confdir}/bin/vim ]]
     then
-        echo "Use an existing vim-reset facility, ${confdir}/bin"
+        echo "Use an existing vim-reset facility, ${confdir}/bin" >&2
     fi
 
     vim_hijack || return $?
@@ -273,7 +273,8 @@ vim_reset() {
 vim_deploy() {
     local VIM=$( which vim )
     [[ -z ${VIM} ]] && {
-        echo "No VIM installed?"
+        echo "No VIM installed?" >&2
+        echo "Aborting..." >&2
         return 1
     }
 
@@ -288,7 +289,7 @@ vim_deploy() {
     elif [[ ! -f ${vimrc} ]]
     then
         echo "The path specified by '--vimrc' option  or env-variable 'VIM_RESET_VIMRC' has to be a valid file" >&2
-        echo "Aborting..."
+        echo "Aborting..." >&2
         return 1
     fi
 
@@ -298,7 +299,7 @@ vim_deploy() {
     elif [[ ! -f ${gvimrc} ]]
     then
         echo "The path specified by '--gvimrc' option  or env-variable 'VIM_RESET_GVIMRC' has to be a valid file" >&2
-        echo "Aborting..."
+        echo "Aborting..." >&2
         return 1
     fi
 
@@ -342,18 +343,18 @@ vim_deploy() {
     done
     vimrtp=$( IFS=","; echo "${_rtps[*]}" )
 
-    echo "========================"
-    echo "VIMRC=${vimrc}"
-    echo "GVIMRC=${gvimrc}"
-    echo "VIMRTP=${vimrtp}"
-    echo "========================"
+    echo "========================" >&2
+    echo "VIMRC=${vimrc}"           >&2
+    echo "GVIMRC=${gvimrc}"         >&2
+    echo "VIMRTP=${vimrtp}"         >&2
+    echo "========================" >&2
 
     if [[ ! -d ${confdir}/bin ]]
     then
         mkdir "${confdir}/bin"
         [[ $? -ne 0 ]] && {
-            echo "Fail to mkdir ${confdir}/bin"
-            echo "Aborting..."
+            echo "Fail to mkdir ${confdir}/bin" >&2
+            echo "Aborting..." >&2
             return 1
         }
     fi
@@ -390,8 +391,8 @@ vim_hijack() {
     then
         path_push "${confdir}/bin"
     else
-        echo "Something odd has happend, please check ${confdir}/bin/vim"
-        echo "Aborting..."
+        echo "Something odd has happend, please check ${confdir}/bin/vim" >&2
+        echo "Aborting..." >&2
         return 1
     fi
 
