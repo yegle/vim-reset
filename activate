@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 
-# escape $' \n \t' characters in a string
+#
+# Function: escape
+#
+# Escape $' \n \t' characters in a string.
+#
+# Params:
+#
+#  $1  string to esape
+#
 escape() {
     res=$1
     res=${res// /\\ }
@@ -11,7 +19,15 @@ escape() {
     return 0
 }
 
-# pop $1 from PATH environment variable
+#
+# Function: path_pop
+#
+# Remove a path from 'PATH' environment variable.
+#
+# Params:
+#
+#  $1  path to remove
+#
 path_pop() {
     local path=$1
     local path_array
@@ -19,6 +35,7 @@ path_pop() {
     IFS=':' read -ra path_array <<< "$PATH"
     for path_index in ${!path_array[*]}
     do
+        # Use 'eval' handle tilde expansion
         eval [[ $( escape "${path%/}" ) == $( escape "${path_array[${path_index}]%/}" ) ]] && {
             unset path_array[${path_index}]
         }
@@ -28,7 +45,16 @@ path_pop() {
     return 0
 }
 
-# push $1 as the first directory of PATH environment variable
+#
+# Function: path_push
+#
+# Push a path as the first directory of 'PATH'
+# environment variable.
+#
+# Params:
+#
+#  $1  path to push
+#
 path_push() {
     local path=$1
     path_pop "${path}"
@@ -41,7 +67,7 @@ path_push() {
 # Function: normalize
 #
 # Normalize a given path.
-
+#
 # Do not follow symlink. If the given path is a
 # file, normalize parent directory.
 #
@@ -61,6 +87,11 @@ normalize() {
   return 0
 }
 
+#
+# Function: show_help
+#
+# Show help information.
+#
 show_help() {
     cat << 'EOF'
 
@@ -148,6 +179,11 @@ EOF
 return 0
 }
 
+#
+# Function: vim_reset
+#
+# Main entrance of the whole funcitonality.
+#
 vim_reset() {
     declare -i hard=${VIM_RESET_HARD:-0}
     declare -i force=${VIM_RESET_FORCE:-0}
@@ -197,9 +233,11 @@ vim_reset() {
         shift
     done
 
+    # We don't have 'confdir', might be doing a reverting now.
     if [[ -z ${confdir} ]]
     then
         force=0
+    # When either of these variables is set, that implicates doing a force re-establishing.
     elif [[ ${hard} -eq 1 ]] || [[ -n ${vimrc} ]] || [[ -n ${gvimrc} ]] || [[ -n ${vimrtp} ]]
     then
         force=1
@@ -270,6 +308,11 @@ vim_reset() {
     return 0
 }
 
+#
+# Function: vim_deploy
+#
+# Deploy hijacked vim facility.
+#
 vim_deploy() {
     local VIM=$( which vim )
     [[ -z ${VIM} ]] && {
@@ -386,6 +429,12 @@ OUTPUT
     return 0
 }
 
+#
+# Function: vim_hijack
+#
+# Hijack vim by pushing the path of our vim wrapper as
+# the first directory of 'PATH' env.
+#
 vim_hijack() {
     if [[ -f ${confdir}/bin/vim ]] && [[ -x ${confdir}/bin/vim ]]
     then
@@ -399,6 +448,12 @@ vim_hijack() {
     return 0
 }
 
+#
+# Function: vim_revert
+#
+# Revert any change to the 'PATH' env until we get the
+# original vim back.
+#
 vim_revert() {
     while grep -IF 'GENERATED_BY_VIM_RESET' "$( which vim )" &>/dev/null
     do
@@ -408,7 +463,15 @@ vim_revert() {
     return 0
 }
 
+#
+# Function: git_vim_rtp
+#
+# Get VIM's 'rtp' setting.
+#
 get_vim_rtp() {
+    # ${hard} here is coming from the parent function.
+    # To a invoked child funciton, parent function's local
+    # variable is global.
     if [[ ${hard} -ne 1 ]]
     then
         ${VIM} 2>/dev/null \
