@@ -313,7 +313,7 @@ vim_deploy() {
     vimrtp=${vimrtp},"~/.vim"
 
     declare -a rtps
-    IFS=',' read -ra rtps < <(unset IFS;echo ${vimrtp})
+    IFS=',' read -ra rtps <<< "${vimrtp}"
 
     declare -a _rtps
     IFS=',' read -ra _rtps < <(get_vim_rtp)
